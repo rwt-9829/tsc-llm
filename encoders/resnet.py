@@ -42,6 +42,7 @@ class ResidualBlock1D(nn.Module):
         if downsample or in_channels != out_channels:
             self.shortcut = nn.Sequential(
                 nn.Conv1d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm1d(out_channels),
             )
         else:
             self.shortcut = nn.Identity()
@@ -86,9 +87,8 @@ class Encoder(nn.Module):
         self.layer2 = ResidualBlock1D(512, 1024, downsample=True)
         self.layer3 = ResidualBlock1D(1024, 2048, downsample=True)
         self.layer4 = ResidualBlock1D(2048, output_dim, downsample=True)
-        self.norm = nn.LayerNorm(output_dim)
-        self.act = nn.ReLU()
         self.pool = nn.AdaptiveAvgPool1d(output_size=k)
+        self.norm = nn.BatchNorm1d(output_dim)
 
     def forward(self, x):
         """Forward pass through the ResNet encoder.
@@ -105,5 +105,7 @@ class Encoder(nn.Module):
         x = self.layer3(x)  # [B, 2048, T/8]
         x = self.layer4(x)  # [B, 4096, T/16]
         x = self.pool(x)    # [B, output_dim, k]
+        x = self.norm(x)    # Normalize outputs
+        x = torch.sigmoid(x)  # Bound outputs to [0, 1]
         x = x.permute(0, 2, 1)  # [B, k, output_dim]
         return x

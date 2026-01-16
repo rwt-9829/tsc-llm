@@ -2,6 +2,9 @@
 
 A deep learning framework for time series classification that combines various encoder architectures with Large Language Model (LLM) embeddings. This project leverages pretrained LLMs (e.g., LLaMA) to enhance time series classification performance on UCR benchmark datasets.
 
+Paper: [An Exploratory Study to Repurpose LLMs to a Unified Architecture for Time Series Classification
+](https://arxiv.org/abs/2601.09971)
+
 ## Overview
 
 This project provides three model variants for time series classification:
